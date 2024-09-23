@@ -1,56 +1,47 @@
-# import socket module
+# Import necessary modules
 from socket import *
-# In order to terminate the program
 import sys
 
 def webServer(port=13331):
+    # Create a TCP/IP socket
     serverSocket = socket(AF_INET, SOCK_STREAM)
-    # Prepare a server socket
     serverSocket.bind(("localhost", port))
     serverSocket.listen(5)
+    print(f"Server is running on port {port}...")
 
     while True:
-        # Establish the connection
+        # Accept a new connection
         connectionSocket, addr = serverSocket.accept()
         try:
-            message = connectionSocket.recv(1024).decode()  # Adjusted buffer size
-            print(f"Received message: {message}")  # Debugging line to see the received message
+            message = connectionSocket.recv(1024).decode()  # Receive the request
+            print(f"Received message: {message}")  # Debugging line
+            filename = message.split()[1]  # Extract the filename from the request
             
-            # Check if the message is empty or malformed
-            if not message:
-                raise ValueError("Empty message received")
-            
-            # Extract the filename from the request
-            request_line = message.splitlines()[0]  # Get the first line of the request
-            filename = request_line.split()[1]  # Extract the filename
-            
-            # Open file in read mode using context manager
+            # Open the requested file
             with open(filename[1:], 'r') as f:  
                 outputdata = f.read()
 
-            # Send HTTP headers
-            connectionSocket.send("HTTP/1.1 200 OK\r\n".encode())
-            connectionSocket.send("Content-Type: text/html\r\n".encode())
-            connectionSocket.send("\r\n".encode())  # Ensure headers are terminated
+            # Send HTTP response headers
+            connectionSocket.sendall("HTTP/1.1 200 OK\r\n".encode())
+            connectionSocket.sendall("Content-Type: text/html\r\n".encode())
+            connectionSocket.sendall("\r\n".encode())  # End of headers
 
-            # Send the content of the requested file to the client
-            connectionSocket.send(outputdata.encode())  # Send entire content at once
+            # Send the content of the requested file
+            connectionSocket.sendall(outputdata.encode())
 
         except IOError:
-            # Send response message for file not found (404)
-            connectionSocket.send("HTTP/1.1 404 Not Found\r\n".encode())
-            connectionSocket.send("Content-Type: text/plain\r\n".encode())
-            connectionSocket.send("\r\n".encode())  # Ensure headers are terminated
-            connectionSocket.send("File not found.".encode())
+            # Handle file not found error
+            connectionSocket.sendall("HTTP/1.1 404 Not Found\r\n".encode())
+            connectionSocket.sendall("Content-Type: text/plain\r\n".encode())
+            connectionSocket.sendall("\r\n".encode())  # End of headers
+            connectionSocket.sendall("File not found.".encode())
         except (ConnectionResetError, BrokenPipeError):
-            pass
-        except ValueError as ve:
-            print(f"ValueError: {ve}")  # Log the error for debugging
+            print("Connection was reset or broken.")
         finally:
-            connectionSocket.close()  # Ensure the connection is closed after each request
+            connectionSocket.close()  # Close the connection
 
     serverSocket.close()
-    sys.exit()  # Terminate the program after sending the corresponding data
+    sys.exit()  # Terminate the program
 
 if __name__ == "__main__":
     webServer(13331)
