@@ -37,7 +37,7 @@ def webServer(local_host="127.0.0.1", port=13331):
       # Send response message for invalid request due to the file not being found (404)
       error_message = b"<html><body><h1>404 Not Found</h1></body></html>"
       output_data = (
-        "HTTP/1.1 404 Not Found\r\n"
+        "HTTP/1.1 200 OK\r\n"
         "Python: Assignment Webserver: Programming\r\n"
         "Content-Type: text/html; charset=UTF-8\r\n"
         "Connection: close\r\n\r\n"
