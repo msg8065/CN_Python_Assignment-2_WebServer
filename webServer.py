@@ -26,7 +26,7 @@ def webServer(local_host="127.0.0.1", port=13331):
       # Prepare the HTTP 200 OK response header and add the file contents
       output_data = (
         "HTTP/1.1 200 OK\r\n"
-        "Python Programming\r\n"
+        "Python: Assignment: Programming\r\n"
         "Content-Type: text/html; charset=UTF-8\r\n"
         "Connection: close\r\n\r\n"
       ).encode('utf-8') + file_data
@@ -38,7 +38,7 @@ def webServer(local_host="127.0.0.1", port=13331):
       error_message = b"<html><body><h1>404 Not Found</h1></body></html>"
       output_data = (
         "HTTP/1.1 404 Not Found\r\n"
-        "Python Programming\r\n"
+        "Python: Assignment: Programming\r\n"
         "Content-Type: text/html; charset=UTF-8\r\n"
         "Connection: close\r\n\r\n"
       ).encode('utf-8') + error_message
