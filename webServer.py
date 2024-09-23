@@ -14,25 +14,40 @@ def webServer(port=13331):
         connectionSocket, addr = serverSocket.accept()
         try:
             message = connectionSocket.recv(1024).decode()  # Adjusted buffer size
-            filename = message.split()[1]
-            f = open(filename[1:], 'r')  # Open file in read mode
-            outputdata = f.read()
+            print(f"Received message: {message}")  # Debugging line to see the received message
+            
+            # Check if the message is empty or malformed
+            if not message:
+                raise ValueError("Empty message received")
+            
+            # Extract the filename from the request
+            request_line = message.splitlines()[0]  # Get the first line of the request
+            filename = request_line.split()[1]  # Extract the filename
+            
+            # Open file in read mode using context manager
+            with open(filename[1:], 'r') as f:  
+                outputdata = f.read()
 
-            # Send HTTP headers as a single string
-            headers = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            connectionSocket.send(headers.encode())
+            # Send HTTP headers
+            connectionSocket.send("HTTP/1.1 200 OK\r\n".encode())
+            connectionSocket.send("Content-Type: text/html\r\n".encode())
+            connectionSocket.send("\r\n".encode())  # Ensure headers are terminated
+
             # Send the content of the requested file to the client
             connectionSocket.send(outputdata.encode())  # Send entire content at once
 
-            connectionSocket.close()
         except IOError:
             # Send response message for file not found (404)
-            headers = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n"
-            connectionSocket.send(headers.encode())
+            connectionSocket.send("HTTP/1.1 404 Not Found\r\n".encode())
+            connectionSocket.send("Content-Type: text/plain\r\n".encode())
+            connectionSocket.send("\r\n".encode())  # Ensure headers are terminated
             connectionSocket.send("File not found.".encode())
-            connectionSocket.close()
         except (ConnectionResetError, BrokenPipeError):
             pass
+        except ValueError as ve:
+            print(f"ValueError: {ve}")  # Log the error for debugging
+        finally:
+            connectionSocket.close()  # Ensure the connection is closed after each request
 
     serverSocket.close()
     sys.exit()  # Terminate the program after sending the corresponding data
