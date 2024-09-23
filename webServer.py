@@ -1,5 +1,3 @@
-GET /index.html HTTP/1.1
-
 # Import necessary modules
 from socket import *
 import sys
