@@ -38,7 +38,7 @@ def webServer(local_host="127.0.0.1", port=13331):
       error_message = b"<html><body><h1>404 Not Found</h1></body></html>"
       output_data = (
         "HTTP/1.1 404 Not Found\r\n"
-        "Server: Computer Networks: Programming\r\n"
+        "CN WEBSERVER ASSIGNMENT\r\n"
         "Content-Type: text/html; charset=UTF-8\r\n"
         "Connection: close\r\n\r\n"
       ).encode('utf-8') + error_message
