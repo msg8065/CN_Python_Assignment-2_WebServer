@@ -13,18 +13,17 @@ def webServer(port=13331):
         # Establish the connection
         connectionSocket, addr = serverSocket.accept()
         try:
-            message = connectionSocket.recv(13331).decode()
+            message = connectionSocket.recv(1024).decode()  # Adjusted buffer size
             filename = message.split()[1]
-            f = open(filename[1:])
-            outputdata = f.read()
+            with open(filename[1:]) as f:  # Using 'with' for file handling
+                outputdata = f.read()
 
-            # Send HTTP headers (corrected encoding)
+            # Send HTTP headers
             connectionSocket.send("HTTP/1.1 200 OK\r\n".encode())
             connectionSocket.send("Content-Type: text/html\r\n\r\n".encode())
 
             # Send the content of the requested file to the client
-            for i in range(0, len(outputdata)):
-                connectionSocket.send(outputdata[i].encode())
+            connectionSocket.send(outputdata.encode())  # Send entire content at once
 
             connectionSocket.send("\r\n".encode())
             connectionSocket.close()
@@ -36,9 +35,6 @@ def webServer(port=13331):
             connectionSocket.close()
         except (ConnectionResetError, BrokenPipeError):
             pass
-
-    serverSocket.close()
-    sys.exit()  # Terminate the program after sending the corresponding data
 
 if __name__ == "__main__":
     webServer(13331)
